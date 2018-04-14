@@ -1,0 +1,41 @@
+version: "3"
+services:
+  db_server:
+    image: mydb
+    networks:
+      - blog_network
+    deploy:
+      replicas: 1
+      restart_policy: 
+        condition: on-failure
+    volumes:
+      - database_volume:/data/db
+
+  app_server:
+    image: myapp
+    networks:
+      - blog_network
+    depends_on:
+      - db_server
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+
+  webserver:
+    image: mywebserver
+    networks:
+      - blog_network
+    ports:
+      - 8080:80
+    depends_on:
+      - app_server
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+networks:
+  blog_network:
+
+volumes:
+  database_volume:
